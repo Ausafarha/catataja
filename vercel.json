@@ -1,10 +1,14 @@
 {
   "version": 2,
+  "public": true,
   "cleanUrls": true,
   "rewrites": [
     { "source": "/", "destination": "/public/login.html" },
     { "source": "/login", "destination": "/public/login.html" },
     { "source": "/register", "destination": "/public/register.html" },
-    { "source": "/dashboard", "destination": "/public/dashboard.html" }
+    { "source": "/dashboard", "destination": "/public/dashboard.html" },
+    { "source": "/customers", "destination": "/public/customers.html" },
+    { "source": "/debts", "destination": "/public/debts.html" },
+    { "source": "/payments", "destination": "/public/payments.html" }
   ]
 }
