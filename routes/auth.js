@@ -24,16 +24,25 @@ router.post('/register', async (req, res) => {
 
 // Proses Login
 router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-    const result = await pool.query('SELECT * FROM users WHERE email=$1', [email]);
-    if (result.rows.length == 0) return res.send('Email tidak ditemukan');
-    
-    const user = result.rows[0];
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.send('Password salah');
+    try {
+        const { email, password } = req.body;
+        
+        // Cek apakah database bisa diakses
+        const result = await pool.query('SELECT * FROM users WHERE email=$1', [email]);
+        
+        if (result.rows.length == 0) return res.send('Email tidak ditemukan');
+        
+        const user = result.rows[0];
+        const match = await bcrypt.compare(password, user.password);
+        if (!match) return res.send('Password salah');
 
-    req.session.user = user;
-    res.redirect('/dashboard');
+        req.session.user = user;
+        res.redirect('/dashboard');
+    } catch (error) {
+        console.error("Error Login:", error.message);
+        // Ini yang bikin tampilan tetap aman meski DB belum ada
+        res.send("Database belum siap/konek, tapi sistem login sudah standby!"); 
+    }
 });
 
 // Logout

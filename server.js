@@ -40,4 +40,9 @@ app.get('/api/user', (req, res) => {
   res.json({ nama: req.session.user ? req.session.user.nama : null });
 });
 
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Ada yang salah di Server Gacor!');
+});
+
 app.listen(3000, () => console.log('Server Gacor di http://localhost:3000'));
