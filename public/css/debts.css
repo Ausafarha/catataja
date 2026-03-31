@@ -1,0 +1,106 @@
+/* 1. WAJIB DI BARIS PERTAMA: Agar Sidebar & Layout tidak hilang */
+@import url('dashboard.css');
+
+/* 2. Styling Card & Form (Gacor Edition) */
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+}
+
+.form-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+/* Styling Input agar konsisten */
+select, input[type="number"], input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    flex: 1;
+    min-width: 150px;
+    font-family: inherit;
+}
+
+/* 3. Styling Tabel Transaksi (Biar Rapi) */
+#debtTable {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+#debtTable th {
+    background-color: #2c3e50;
+    color: white;
+    text-align: left;
+    padding: 15px;
+    font-size: 14px;
+}
+
+#debtTable td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+#debtTable tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* 4. Status & Badge */
+.badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    color: white;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.bg-success { background-color: #27ae60; }
+.bg-warning { background-color: #f39c12; }
+.text-danger { color: #e74c3c; font-weight: bold; }
+
+/* 5. Tombol Aksi */
+.btn-sm {
+    margin: 2px;
+    padding: 6px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    border: none;
+    border-radius: 3px;
+    transition: 0.2s;
+    font-weight: 600;
+}
+
+.btn-sm:hover {
+    opacity: 0.8;
+}
+
+button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-edit {
+    background-color: #f1c40f;
+    color: white;
+}
+
+.btn-danger {
+    background-color: #e74c3c;
+    color: white;
+}

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Riwayat Pembayaran</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/payments.css">
+</head>
+<body>
+<div class="layout">
+  <div class="sidebar">
+    <h2>CatatAja</h2>
+    <nav>
+        <a href="/dashboard"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+        <a href="/customers"><i class="fas fa-users"></i> <span>Pelanggan</span></a>
+        <a href="/debts"><i class="fas fa-receipt"></i> <span>Hutang</span></a>
+        <a href="/payments"><i class="fas fa-wallet"></i> <span>Pembayaran</span></a>
+        <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+    </nav>
+</div>
+
+ <div class="main">
+    <h1>Riwayat Pembayaran</h1>
+
+    <div class="card">
+        <h3>Input Cicilan Baru</h3>
+        <div class="payment-form"> <input type="text" id="cari_nama" placeholder="Ketik nama pelanggan..." onkeyup="filterPelanggan()">
+
+            <select id="order_id_input" size="5">
+                <option value="">-- Hasil Pencarian Nama Akan Muncul Disini --</option>
+            </select>
+
+            <input type="number" id="jumlah_bayar" placeholder="Nominal Bayar (Rp)">
+            <button onclick="inputBayar()" class="btn-confirm">
+                Konfirmasi Bayar
+            </button>
+        </div>
+    </div>
+
+    <div class="table-container"> <table id="paymentTable">
+            </table>
+    </div>
+</div>
+
+<script>
+let dataOrders = []; // Simpan data secara global untuk difilter
+
+async function loadOrderDropdown() {
+  // Ambil data order dari route debts
+  const res = await fetch('/debts/api'); 
+  dataOrders = await res.json();
+  
+  // Filter hanya yang belum lunas
+  const belumLunas = dataOrders.filter(o => o.status !== 'Lunas');
+  renderOptions(belumLunas);
+
+  // Jika datang dari tombol "Cicil" di debts.html
+  const urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.has('order_id')) {
+    document.getElementById('order_id_input').value = urlParams.get('order_id');
+  }
+}
+
+// Fungsi untuk menampilkan daftar ke dalam select
+function renderOptions(list) {
+  const select = document.getElementById('order_id_input');
+  select.innerHTML = ''; // Kosongkan dulu
+  
+  if(list.length === 0) {
+    select.innerHTML = '<option value="">Pelanggan tidak ditemukan</option>';
+    return;
+  }
+
+  list.forEach(o => {
+    const option = document.createElement('option');
+    option.value = o.id;
+    option.textContent = `${o.customer_nama} (Sisa Hutang: Rp ${o.sisa.toLocaleString()})`;
+    option.style.padding = "8px";
+    select.appendChild(option);
+  });
+}
+
+// FUNGSI JOSS: Filter nama sambil ngetik
+function filterPelanggan() {
+  const keyword = document.getElementById('cari_nama').value.toLowerCase();
+  const hasilFilter = dataOrders.filter(o => 
+    o.status !== 'Lunas' && o.customer_nama.toLowerCase().includes(keyword)
+  );
+  renderOptions(hasilFilter);
+}
+
+async function inputBayar() {
+  const order_id = document.getElementById('order_id_input').value;
+  const jumlah = document.getElementById('jumlah_bayar').value;
+
+  if(!order_id || !jumlah) return alert("Pilih pelanggan dan isi nominal!");
+
+  const res = await fetch('/payments/api', { // Tambahkan prefix /payments
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ order_id, jumlah })
+  });
+
+  if(res.ok) {
+    alert("Pembayaran Berhasil Dicatat!");
+    localStorage.removeItem('catataja_orders'); 
+    location.href = '/debts'; 
+  }
+}
+
+async function loadPayments() {
+  const res = await fetch('/payments/api'); // Tambahkan prefix /payments
+  const data = await res.json();
+  const table = document.getElementById('paymentTable');
+  // Update header: Nama Pelanggan bukan ID lagi
+  table.innerHTML = `<tr><th>Nama Pelanggan</th><th>Tanggal</th><th>Jumlah Bayar</th><th>Aksi</th></tr>`;
+
+  data.forEach(p => {
+    table.innerHTML += `
+      <tr>
+        <td><strong>${p.nama_pelanggan || 'Pelanggan'}</strong></td>
+        <td>${new Date(p.tanggal).toLocaleDateString('id-ID')}</td>
+        <td>Rp ${p.jumlah.toLocaleString()}</td>
+        <td><button class="btn-danger" onclick="hapusPayment(${p.id})">Hapus</button></td>
+      </tr>`;
+  });
+}
+
+async function hapusPayment(id) {
+  if (confirm('Hapus riwayat pembayaran ini? Saldo hutang pelanggan akan dikembalikan.')) {
+    const res = await fetch('/payments/api/' + id, {
+      method: 'DELETE'
+    });
+
+    if (res.ok) {
+      loadPayments();
+    } else {
+      alert("Gagal menghapus data");
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadOrderDropdown();
+  loadPayments();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Daftar Produk</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/products.css">
+</head>
+<body>
+<div class="layout">
+ <div class="sidebar">
+    <h2>CatatAja</h2>
+    <nav>
+        <a href="/dashboard"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+        <a href="/customers"><i class="fas fa-users"></i> <span>Pelanggan</span></a>
+        <a href="/debts"><i class="fas fa-receipt"></i> <span>Hutang</span></a>
+        <a href="/payments"><i class="fas fa-wallet"></i> <span>Pembayaran</span></a>
+        <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+    </nav>
+</div>
+
+  <div class="main">
+    <h1>Manajemen Produk</h1>
+    <div class="card">
+      <h3>Tambah Produk</h3>
+      <input type="text" id="nama_produk" placeholder="Nama Barang">
+      <input type="number" id="harga" placeholder="Harga">
+      <button onclick="tambahProduk()">Simpan</button>
+    </div>
+
+    <table id="productTable">
+      <tr>
+        <th>Nama Produk</th>
+        <th>Harga</th>
+        <th>Aksi</th>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<script>
+async function loadProducts() {
+  const res = await fetch('/products/api');
+  const data = await res.json();
+  const table = document.getElementById('productTable');
+  table.innerHTML = `<tr><th>Nama Produk</th><th>Harga</th><th>Aksi</th></tr>`;
+  data.forEach(p => {
+    table.innerHTML += `
+      <tr>
+        <td>${p.nama_produk}</td>
+        <td>Rp ${p.harga.toLocaleString()}</td>
+        <td><button class="btn-danger" onclick="hapusProduk(${p.id})">Hapus</button></td>
+      </tr>`;
+  });
+}
+
+async function tambahProduk() {
+  const nama_produk = document.getElementById('nama_produk').value;
+  const harga = document.getElementById('harga').value;
+  await fetch('/products/api', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ nama_produk, harga })
+  });
+  loadProducts();
+}
+
+loadProducts();
+</script>
+</body>
+</html>

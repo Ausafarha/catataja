@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hutang & Pesanan - CatatAja</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/debts.css">
+</head>
+<body>
+<div class="layout">
+  <div class="sidebar">
+    <h2>CatatAja</h2>
+    <nav>
+        <a href="/dashboard"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+        <a href="/customers"><i class="fas fa-users"></i> <span>Pelanggan</span></a>
+        <a href="/debts"><i class="fas fa-receipt"></i> <span>Hutang</span></a>
+        <a href="/payments"><i class="fas fa-wallet"></i> <span>Pembayaran</span></a>
+        <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+    </nav>
+</div>
+
+  <div class="main">
+    <h1>Data Hutang & Pesanan</h1>
+
+    <div class="card">
+      <h3>Catat Transaksi Baru (Input Manual)</h3>
+      <div class="form-group">
+        <input type="text" id="nama_pelanggan" placeholder="Nama Pelanggan">
+        <input type="text" id="nama_barang" placeholder="Nama Barang">
+        <input type="number" id="qty" placeholder="Qty" style="width: 70px;">
+        <input type="number" id="harga satuan" placeholder="Harga Satuan">
+        <input type="number" id="dibayar" placeholder="DP / Bayar">
+        <button onclick="tambahOrder()">Simpan Transaksi</button>
+      </div>
+    </div>
+
+    <h3>Daftar Transaksi</h3>
+    <table id="debtTable">
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Pelanggan</th>
+          <th>Detail Pesanan</th>
+          <th>Total</th>
+          <th>Sisa Hutang</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="debtBody">
+        </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// Fungsi untuk menampilkan data ke tabel
+function renderTable(data) {
+  const body = document.getElementById('debtBody');
+  body.innerHTML = '';
+
+  data.forEach(o => {
+    const row = `
+      <tr>
+        <td>${new Date(o.tanggal).toLocaleDateString('id-ID')}</td>
+        <td><strong>${o.customer_nama}</strong></td>
+        <td>${o.detail_pesanan}</td>
+        <td>Rp ${o.total.toLocaleString()}</td>
+        <td style="color: red; font-weight: bold;">Rp ${o.sisa.toLocaleString()}</td>
+        <td><span class="badge ${o.status === 'Lunas' ? 'bg-success' : 'bg-warning'}">${o.status}</span></td>
+        <td>
+          <button class="btn-sm" onclick="cicilHutang(${o.id})">Bayar</button>
+          <button class="btn-sm btn-edit" onclick="editOrder(${o.id}, ${o.total}, ${o.dibayar})">Edit</button>
+          <button class="btn-sm btn-danger" onclick="hapusOrder(${o.id})">Hapus</button>
+        </td>
+      </tr>`;
+    body.innerHTML += row;
+  });
+}
+
+// Ambil data dari server + Simpan di LocalStorage agar tidak hilang
+// GANTI BAGIAN INI
+async function loadOrders() {
+  try {
+    // Tambahkan prefix /debts karena di server.js pakai app.use('/debts', ...)
+    const res = await fetch('/debts/api'); 
+    const data = await res.json();
+    renderTable(data);
+  } catch (err) { console.error(err); }
+}
+
+async function tambahOrder() {
+  const payload = {
+    nama_pelanggan: document.getElementById('nama_pelanggan').value,
+    nama_barang: document.getElementById('nama_barang').value,
+    qty: document.getElementById('qty').value,
+    // SESUAIKAN ID INI (Tadi di HTML pakai "harga satuan")
+    harga: document.getElementById('harga satuan').value, 
+    dibayar: document.getElementById('dibayar').value
+  };
+
+  await fetch('/debts/api', { // Tambahkan prefix /debts
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  });
+  loadOrders();
+}
+
+async function hapusOrder(id) {
+  if(confirm('Hapus transaksi ini?')) {
+    await fetch('/debts/api/' + id, { method: 'DELETE' });
+    loadOrders();
+  }
+}
+
+function cicilHutang(id) {
+  window.location.href = `/payments?order_id=${id}`;
+}
+
+// Jalankan otomatis saat halaman dibuka
+document.addEventListener('DOMContentLoaded', loadOrders);
+</script>
+</body>
+</html>

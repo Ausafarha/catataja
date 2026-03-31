@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pelanggan</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/customers.css">
+</head>
+<body>
+
+<div class="layout">
+
+  <div class="sidebar">
+    <h2>CatatAja</h2>
+    <nav>
+        <a href="/dashboard"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+        <a href="/customers"><i class="fas fa-users"></i> <span>Pelanggan</span></a>
+        <a href="/debts"><i class="fas fa-receipt"></i> <span>Hutang</span></a>
+        <a href="/payments"><i class="fas fa-wallet"></i> <span>Pembayaran</span></a>
+        <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+    </nav>
+</div>
+
+  <div class="main">
+    <h1>Pelanggan</h1>
+
+    <h3>Tambah Pelanggan</h3>
+    <input type="text" id="nama" placeholder="Nama">
+    <input type="text" id="no_hp" placeholder="No HP">
+    <input type="text" id="alamat" placeholder="Alamat">
+    <button onclick="tambahCustomer()">Tambah</button>
+
+    <h3>Daftar Pelanggan</h3>
+    <table id="customerTable">
+      <tr>
+        <th>Nama</th>
+        <th>No HP</th>
+        <th>Alamat</th>
+        <th>Aksi</th>
+      </tr>
+    </table>
+
+  </div>
+</div>
+
+<script>
+async function loadCustomers() {
+  const res = await fetch('/customers/api');
+  const data = await res.json();
+
+  const table = document.getElementById('customerTable');
+  table.innerHTML = `
+    <tr>
+      <th>Nama</th>
+      <th>No HP</th>
+      <th>Alamat</th>
+      <th>Aksi</th>
+    </tr>
+  `;
+
+  data.forEach(c => {
+    table.innerHTML += `
+      <tr>
+        <td>${c.nama}</td>
+        <td>${c.no_hp}</td>
+        <td>${c.alamat}</td>
+        <td>
+          <button onclick="editCustomer(${c.id}, '${c.nama}', '${c.no_hp}', '${c.alamat}')">Edit</button>
+          <button onclick="deleteCustomer(${c.id})">Hapus</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+async function tambahCustomer() {
+  const nama = document.getElementById('nama').value;
+  const no_hp = document.getElementById('no_hp').value;
+  const alamat = document.getElementById('alamat').value;
+
+  await fetch('/api/customers', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ nama, no_hp, alamat })
+  });
+
+  loadCustomers();
+}
+
+async function deleteCustomer(id) {
+  if (confirm('Hapus pelanggan ini?')) {
+    // Tambahkan /customers di depan /api
+    const res = await fetch('/customers/api/' + id, {
+      method: 'DELETE'
+    });
+
+    if (res.ok) {
+      loadCustomers();
+    } else {
+      alert("Gagal menghapus pelanggan");
+    }
+  }
+}
+
+function editCustomer(id, nama, no_hp, alamat) {
+  const namaBaru = prompt('Nama', nama);
+  const hpBaru = prompt('No HP', no_hp);
+  const alamatBaru = prompt('Alamat', alamat);
+
+ fetch('/customers/api/' + id, {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      nama: namaBaru,
+      no_hp: hpBaru,
+      alamat: alamatBaru
+    })
+  }).then(loadCustomers);
+}
+
+loadCustomers();
+</script>
+
+</body>
+</html>
