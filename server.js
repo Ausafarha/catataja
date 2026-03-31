@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const app = express();
+const path = require('path');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -31,7 +32,8 @@ app.use('/products', productRoutes);
 // Halaman Dashboard
 app.get('/dashboard', (req, res) => {
   if (!req.session.user) return res.redirect('/');
-  res.sendFile(__dirname + '/public/dashboard.html');
+  // Gunakan path.join agar terbaca benar di server Linux Vercel
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
 app.get('/api/user', (req, res) => {
