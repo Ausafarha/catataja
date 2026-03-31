@@ -5,7 +5,8 @@ const pool = require('../db');
 
 // Halaman Login
 router.get('/', (req, res) => {
-    res.sendFile(process.cwd() + '/public/login.html');
+    // Karena index.html sekarang ada di root (sejajar server.js)
+    res.sendFile(path.join(process.cwd(), 'index.html'));
 });
 
 // Halaman Register
