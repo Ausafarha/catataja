@@ -1,13 +1,12 @@
 {
   "version": 2,
+  "public": true,
+  "cleanUrls": true,
   "rewrites": [
-    {
-      "source": "/(css|js|img)/(.*)",
-      "destination": "/$1/$2"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/$1.html"
-    }
+    { "source": "/", "destination": "/public/dashboard.html" },
+    { "source": "/dashboard", "destination": "/public/dashboard.html" },
+    { "source": "/customers", "destination": "/public/customers.html" },
+    { "source": "/debts", "destination": "/public/debts.html" },
+    { "source": "/payments", "destination": "/public/payments.html" }
   ]
 }
