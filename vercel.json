@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/(css|js|img)/(.*)",
+      "destination": "/$1/$2"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/$1.html"
+    }
+  ]
+}
