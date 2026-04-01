@@ -37,15 +37,19 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-    // Biarkan data API selalu mengambil dari jaringan (tidak di-cache)
-    if (event.request.url.includes('/api/')) {
-        event.respondWith(fetch(event.request));
+    // Abaikan permintaan selain GET (seperti POST login/tambah data)
+    if (event.request.method !== 'GET') return;
+
+    // Abaikan permintaan API agar tidak bentrok dengan database
+    if (event.request.url.includes('/api/') || event.request.url.includes('/customers/')) {
         return;
     }
 
     event.respondWith(
         caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
+            return response || fetch(event.request).catch(() => {
+                // Opsional: berikan halaman offline jika gagal
+            });
         })
     );
 });
