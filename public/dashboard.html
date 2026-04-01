@@ -5,6 +5,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/dashboard.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" href="/icons/icon-192x192.png">
 </head>
 <body>
 
@@ -138,6 +140,14 @@ async function renderDashboardChart() {
 // Jalankan saat halaman dibuka
 renderDashboardChart();
 </script>
-
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('Service Worker Gacor!', reg))
+        .catch(err => console.log('SW Gagal:', err));
+    });
+  }
+</script>
 </body>
 </html>
