@@ -104,3 +104,28 @@ button {
     background-color: #e74c3c;
     color: white;
 }
+/* Tambahkan atau pastikan ini ada di bagian bawah file CSS masing-masing */
+@media (max-width: 768px) {
+    .table-container {
+        width: 100%;
+        overflow-x: auto; /* Memungkinkan tabel di-geser ke samping tanpa ngerusak layout */
+        -webkit-overflow-scrolling: touch;
+        margin-top: 10px;
+    }
+    
+    table {
+        min-width: 500px; /* Maksa tabel punya lebar minimal agar data tidak tumpuk */
+    }
+
+    /* Form agar jadi satu kolom di HP */
+    .form-group, .payment-form {
+        flex-direction: column;
+        display: flex;
+    }
+
+    select, input {
+        width: 100% !important; /* Paksa lebar penuh */
+        margin-right: 0 !important;
+        margin-bottom: 10px;
+    }
+}
