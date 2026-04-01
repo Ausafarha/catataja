@@ -147,48 +147,6 @@ async function renderDashboardChart() {
 // Jalankan saat halaman dibuka
 renderDashboardChart();
 </script>
-<script>
-  let deferredPrompt;
-  const installContainer = document.getElementById('install-container');
-  const btnInstall = document.getElementById('btn-install');
 
-  // 1. Daftarkan Service Worker
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js');
-    });
-  }
-
-  // 2. Tangkap event 'beforeinstallprompt'
-  window.addEventListener('beforeinstallprompt', (e) => {
-    // Mencegah Chrome memunculkan banner otomatis yang mengganggu
-    e.preventDefault();
-    // Simpan event-nya biar bisa dipakai nanti
-    deferredPrompt = e;
-    // Munculkan tombol instal buatan kita sendiri
-    installContainer.style.display = 'block';
-  });
-
-  // 3. Logika saat tombol di-klik
-  btnInstall.addEventListener('click', async () => {
-    if (deferredPrompt) {
-      // Munculkan prompt instalasi asli browser
-      deferredPrompt.prompt();
-      // Tunggu jawaban user (Setuju/Batal)
-      const { outcome } = await deferredPrompt.userChoice;
-      console.log(`User response: ${outcome}`);
-      // Hapus prompt karena cuma bisa dipakai sekali
-      deferredPrompt = null;
-      // Sembunyikan tombol lagi
-      installContainer.style.display = 'none';
-    }
-  });
-
-  // 4. Sembunyikan tombol kalau aplikasi sudah terinstal
-  window.addEventListener('appinstalled', () => {
-    console.log('CatatAja sudah terpasang di HP!');
-    installContainer.style.display = 'none';
-  });
-</script>
 </body>
 </html>
