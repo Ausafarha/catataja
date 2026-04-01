@@ -1,50 +1,60 @@
 const express = require('express');
 const session = require('express-session');
-const app = express();
 const path = require('path');
 require('dotenv').config();
 
+const app = express();
+
+// --- 1. MIDDLEWARE DASAR ---
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static('public'));
+
+// --- 2. AKSES FILE STATIS (WAJIB PALING ATAS) ---
+// Agar manifest.json dan sw.js bisa dibaca browser sebelum login
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname));
 
+// Rute eksplisit untuk memastikan file PWA terkirim dengan header yang benar
+app.get('/manifest.json', (res) => {
+  res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
+});
+
+app.get('/sw.js', (res) => {
+  res.sendFile(path.join(__dirname, 'public', 'sw.js'));
+});
+
+// --- 3. KONFIGURASI SESSION ---
 app.use(session({
   secret: 'catataja-secret',
-  resave: true,
-  saveUninitialized: true,
-  cookie: { maxAge: 24 * 60 * 60 * 1000, secure: false }
+  resave: false, // Diubah ke false agar lebih stabil
+  saveUninitialized: false, 
+  cookie: { 
+    maxAge: 24 * 60 * 60 * 1000, 
+    secure: false // Set true jika sudah pakai SSL/HTTPS murni
+  }
 }));
 
-// Import Routes
+// --- 4. IMPORT & PAKAI ROUTES ---
 const authRoutes = require('./routes/auth');
 const customerRoutes = require('./routes/customers');
 const debtRoutes = require('./routes/debts');
 const paymentRoutes = require('./routes/payments');
 const productRoutes = require('./routes/products');
 
-
-// Pakai Routes
 app.use('/', authRoutes);
 app.use('/customers', customerRoutes);
 app.use('/debts', debtRoutes);
 app.use('/payments', paymentRoutes);
 app.use('/products', productRoutes);
 
-// Halaman Dashboard
+// --- 5. HALAMAN UTAMA (DENGAN PROTEKSI) ---
 app.get('/dashboard', (req, res) => {
   if (!req.session.user) return res.redirect('/');
-  // Gunakan path.join agar terbaca benar di server Linux Vercel
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
-app.get('/api/user', (req, res) => {
-  res.json({ nama: req.session.user ? req.session.user.nama : null });
+// Port menyesuaikan Railway atau lokal
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server Gacor di port ${PORT}`);
 });
-
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Ada yang salah di Server Gacor!');
-});
-
-app.listen(3000, () => console.log('Server Gacor di http://localhost:3000'));

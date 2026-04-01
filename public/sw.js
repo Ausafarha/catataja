@@ -1,11 +1,10 @@
-const CACHE_NAME = 'catataja-v1.0.1'; // <-- UPDATE VERSI INI SETIAP KALI KAMU GIT PUSH
+const CACHE_NAME = 'catataja-v1.0.2'; // Naikkan versi jika push ulang
 const ASSETS_TO_CACHE = [
     '/',
-    '/index.html',
-    '/dashboard.html',
-    '/customers.html',
-    '/debts.html',
-    '/payments.html',
+    '/dashboard',
+    '/customers',
+    '/debts',
+    '/payments',
     '/css/dashboard.css',
     '/css/customers.css',
     '/css/debts.css',
@@ -16,18 +15,15 @@ const ASSETS_TO_CACHE = [
     '/favicon.ico'
 ];
 
-// 1. Install Service Worker & Cache Assets
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            console.log('Caching shell assets');
             return cache.addAll(ASSETS_TO_CACHE);
         })
     );
-    self.skipWaiting(); // Memaksa SW baru langsung aktif
+    self.skipWaiting();
 });
 
-// 2. Aktivasi & Hapus Cache Lama (Agar perubahan code langsung terasa)
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((keys) => {
@@ -40,10 +36,9 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// 3. Strategi Fetch (Network First untuk data API, Cache First untuk Static)
 self.addEventListener('fetch', (event) => {
-    // Jangan cache permintaan API agar data transaksi selalu fresh
-    if (event.request.url.includes('/api/') || event.request.url.includes('/customers/api')) {
+    // Jangan cache permintaan API agar data tetap fresh
+    if (event.request.url.includes('/api/')) {
         event.respondWith(fetch(event.request));
         return;
     }
