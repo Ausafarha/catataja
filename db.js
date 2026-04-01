@@ -1,14 +1,25 @@
 const { Pool } = require('pg');
 
-// Tambahkan pengaman agar tidak error kalau URL database kosong
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || "postgres://localhost:5432/dummy",
-  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
-});
+// Cek apakah ada DATABASE_URL (untuk Vercel/Railway) 
+// Jika tidak ada, pakai settingan localhost kamu
+const poolConfig = process.env.DATABASE_URL 
+  ? {
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    }
+  : {
+      host: 'localhost',
+      port: 5432,
+      user: 'postgres',
+      password: 'Pengarasan123',
+      database: 'catataja'
+    };
 
-// Tambahkan ini agar jika ada error di pool tidak langsung mematikan server
+const pool = new Pool(poolConfig);
+
+// Tambahkan ini biar kalau DB mati, server kamu gak ikutan tewas
 pool.on('error', (err) => {
-  console.error('Database error ignored for now:', err.message);
+  console.error('Database Error:', err.message);
 });
 
 module.exports = pool;

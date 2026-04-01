@@ -21,19 +21,121 @@
 </div>
 
     <div class="main">
-        <h1>Dashboard</h1>
-        <p id="welcome"></p>
+    <div class="welcome-container">
+        <div class="running-text" id="welcome-text">Memuat data...</div>
     </div>
 
+    <h1>Ringkasan Bisnis</h1>
+
+    <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin-top: 20px;">
+        <canvas id="myChart"></canvas>
+    </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-fetch('/api/user')
-  .then(res => res.json())
-  .then(data => {
-    document.getElementById('welcome').innerText =
-      'Selamat datang ' + data.nama;
-  });
+
+
+// Fungsi untuk Mengambil Data Statistik dari API
+async function renderDashboardChart() {
+    try {
+        // 1. Ambil Data User untuk Running Text
+        const userRes = await fetch('/api/user');
+        if (!userRes.ok) throw new Error('Belum login');
+        const userData = await userRes.json();
+        
+        const welcomeElement = document.getElementById('welcome-text');
+        welcomeElement.innerText = `Selamat datang, ${userData.nama}! "Pantau pesanan & hutang jadi gampang bareng CatatAja. moga makin Gacor! 🚀" `;
+
+        // 2. Ambil data dari semua API rute kamu
+        // Pastikan jalur fetch ini sama dengan app.use di server.js
+        const [resCust, resDebts, resPayments] = await Promise.all([
+            fetch('/customers/api'),
+            fetch('/debts/api'),
+            fetch('/payments/api')
+        ]);
+
+        const customers = await resCust.json();
+        const debts = await resDebts.json();
+        const payments = await resPayments.json();
+
+        // 3. Kalkulasi Data agar Grafik Muncul Angkanya
+        const totalPelanggan = customers.length;
+        
+        // Hitung total sisa hutang dari semua transaksi
+        const totalHutang = debts.reduce((sum, item) => sum + (parseFloat(item.sisa) || 0), 0);
+        
+        // Hitung total uang masuk dari semua pembayaran
+        const totalMasuk = payments.reduce((sum, item) => sum + (parseFloat(item.jumlah) || 0), 0);
+
+        // 4. Inisialisasi Grafik
+        const ctx = document.getElementById('myChart').getContext('2d');
+        
+        // Cek jika chart sudah ada (untuk mencegah duplikasi saat refresh)
+        if (window.myDashboardChart) {
+            window.myDashboardChart.destroy();
+        }
+
+        window.myDashboardChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Pelanggan', 'Sisa Hutang (Rp)', 'Total Masuk (Rp)'],
+                datasets: [{
+                    label: 'Statistik Akun Saya',
+                    data: [totalPelanggan, totalHutang, totalMasuk],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.7)', // Biru
+                        'rgba(255, 99, 132, 0.7)',  // Merah
+                        'rgba(75, 192, 192, 0.7)'   // Hijau
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(75, 192, 192, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        ticks: {
+                            // Biar angka di samping ada titik ribuan (contoh: 1.000.000)
+                            callback: function(value) {
+                                return value.toLocaleString('id-ID');
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) label += ': ';
+                                if (context.parsed.y !== null) {
+                                    label += context.parsed.y.toLocaleString('id-ID');
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+    } catch (err) {
+        console.error("Gagal load dashboard:", err);
+        document.getElementById('welcome-text').innerText = "Gagal memuat data. Silakan login ulang.";
+    }
+}
+
+// Jalankan saat halaman dibuka
+renderDashboardChart();
 </script>
 
 </body>

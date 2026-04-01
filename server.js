@@ -2,10 +2,12 @@ const express = require('express');
 const session = require('express-session');
 const app = express();
 const path = require('path');
+require('dotenv').config();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
+app.use(express.static(__dirname));
 
 app.use(session({
   secret: 'catataja-secret',

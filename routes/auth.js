@@ -5,15 +5,14 @@ const pool = require('../db');
 const path = require('path'); // WAJIB TAMBAHKAN INI
 
 // Halaman Login (Tampilan Utama)
+// Halaman Login
 router.get('/', (req, res) => {
-    // Mengambil index.html dari folder root
-    res.sendFile(path.join(process.cwd(), 'index.html'));
+    res.sendFile(path.join(__dirname, '../index.html')); 
 });
 
 // Halaman Register
 router.get('/register', (req, res) => {
-    // Karena register.html sudah di luar root
-    res.sendFile(path.join(process.cwd(), 'register.html'));
+    res.sendFile(path.join(__dirname, '../register.html'));
 });
 
 // Proses Register
