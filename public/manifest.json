@@ -1,7 +1,7 @@
 {
-  "name": "CatatAja - Kasir Gacor",
+  "name": "CatatAja",
   "short_name": "CatatAja",
-  "description": "Aplikasi Pencatat Hutang dan Kasir UMKM",
+  "description": "Aplikasi Pencatat Pesanan & Hutang ",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#2c3e50",
