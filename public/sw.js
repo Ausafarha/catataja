@@ -1,4 +1,4 @@
-const CACHE_NAME = 'catataja-v1.0.2'; // Naikkan versi jika push ulang
+const CACHE_NAME = 'catataja-v1.0.5'; 
 const ASSETS_TO_CACHE = [
     '/',
     '/dashboard',
@@ -37,7 +37,7 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-    // Jangan cache permintaan API agar data tetap fresh
+    // Biarkan data API selalu mengambil dari jaringan (tidak di-cache)
     if (event.request.url.includes('/api/')) {
         event.respondWith(fetch(event.request));
         return;
